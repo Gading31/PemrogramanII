@@ -1,3 +1,5 @@
+package pertemuan6;
+
 import java.sql.*;
 
 public class DatabaseHelper {

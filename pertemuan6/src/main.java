@@ -1,3 +1,5 @@
+package pertemuan6;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -10,15 +12,14 @@ public class Main extends JFrame {
     JTable table;
 
     public Main() {
+        // Inisialisasi database dari Helper
         DatabaseHelper.initDB();
 
-        setTitle("Data Nilai Mahasiswa");
-        setSize(600, 500);
+        setTitle("Data Nilai Mahasiswa - Tugas Pemrograman II");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout(5, 5));
+        setLayout(new BorderLayout(10, 10));
 
-        // Panel form input (atas)
+        // 1. Panel Form Input (NORTH dari topPanel)
         JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 5));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 
@@ -28,43 +29,52 @@ public class Main extends JFrame {
         formPanel.add(new JLabel("Nilai 2:"));   nil2TF = new JTextField(); formPanel.add(nil2TF);
         formPanel.add(new JLabel("Rata-rata:")); rataTF = new JTextField(); rataTF.setEditable(false); formPanel.add(rataTF);
 
-        // Panel tombol (tengah)
-        JPanel btnPanel = new JPanel(new FlowLayout());
+        // 2. Panel Tombol (CENTER dari topPanel)
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton tambahBtn = new JButton("Tambah");
         JButton cariBtn   = new JButton("Cari");
         JButton updateBtn = new JButton("Update");
         JButton hapusBtn  = new JButton("Hapus");
         JButton tampilBtn = new JButton("Tampil Semua");
+        
         btnPanel.add(tambahBtn);
         btnPanel.add(cariBtn);
         btnPanel.add(updateBtn);
         btnPanel.add(hapusBtn);
         btnPanel.add(tampilBtn);
 
-        // Tabel hasil (bawah)
+        // Menggabungkan Form dan Tombol ke dalam satu panel atas
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(formPanel, BorderLayout.NORTH);
+        topPanel.add(btnPanel, BorderLayout.CENTER);
+
+        // 3. Tabel Hasil (CENTER dari Frame utama agar fleksibel)
         String[] kolom = {"NIM", "Nama", "Nilai 1", "Nilai 2", "Rata-rata"};
         tableModel = new DefaultTableModel(kolom, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Daftar Nilai Mahasiswa"));
 
         // Klik baris tabel -> isi form otomatis
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int row = table.getSelectedRow();
-                nimTF.setText(tableModel.getValueAt(row, 0).toString());
-                namaTF.setText(tableModel.getValueAt(row, 1).toString());
-                nil1TF.setText(tableModel.getValueAt(row, 2).toString());
-                nil2TF.setText(tableModel.getValueAt(row, 3).toString());
-                rataTF.setText(tableModel.getValueAt(row, 4).toString());
+                if (row != -1) {
+                    nimTF.setText(tableModel.getValueAt(row, 0).toString());
+                    namaTF.setText(tableModel.getValueAt(row, 1).toString());
+                    nil1TF.setText(tableModel.getValueAt(row, 2).toString());
+                    nil2TF.setText(tableModel.getValueAt(row, 3).toString());
+                    rataTF.setText(tableModel.getValueAt(row, 4).toString());
+                }
             }
         });
 
-        add(formPanel, BorderLayout.NORTH);
-        add(btnPanel, BorderLayout.CENTER);
-        add(scrollPane, BorderLayout.SOUTH);
+        // Menyusun komponen ke Frame Utama
+        add(topPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
 
-        // Aksi Tambah
+        // --- AKSI TOMBOL ---
+
         tambahBtn.addActionListener(e -> {
             try {
                 DatabaseHelper.tambahData(
@@ -80,7 +90,6 @@ public class Main extends JFrame {
             }
         });
 
-        // Aksi Cari (by nama, tampil di tabel)
         cariBtn.addActionListener(e -> {
             tableModel.setRowCount(0);
             try (Connection conn = DatabaseHelper.connect();
@@ -89,23 +98,18 @@ public class Main extends JFrame {
                 while (rs.next()) {
                     ada = true;
                     tableModel.addRow(new Object[]{
-                        rs.getString("nim"),
-                        rs.getString("nama"),
-                        rs.getString("nil1"),
-                        rs.getString("nil2"),
-                        rs.getString("rata")
+                        rs.getString("nim"), rs.getString("nama"),
+                        rs.getString("nil1"), rs.getString("nil2"), rs.getString("rata")
                     });
                 }
                 if (!ada) {
-                    JOptionPane.showMessageDialog(this, "Data tidak ada/Salah",
-                        "Informasi", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Data tidak ditemukan!");
                 }
             } catch (SQLException ex) {
-                System.out.println("Koneksi gagal: " + ex.toString());
+                System.out.println("Cari data gagal: " + ex.getMessage());
             }
         });
 
-        // Aksi Update
         updateBtn.addActionListener(e -> {
             try {
                 DatabaseHelper.updateData(
@@ -116,33 +120,30 @@ public class Main extends JFrame {
                 JOptionPane.showMessageDialog(this, "Data berhasil diupdate!");
                 loadSemuaData();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Input tidak valid!");
+                JOptionPane.showMessageDialog(this, "Gagal update! Pastikan input benar.");
             }
         });
 
-        // Aksi Hapus
         hapusBtn.addActionListener(e -> {
             if (nimTF.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Pilih data dari tabel dulu!");
+                JOptionPane.showMessageDialog(this, "Pilih data di tabel untuk dihapus!");
                 return;
             }
-            int konfirmasi = JOptionPane.showConfirmDialog(this,
-                "Yakin hapus data NIM: " + nimTF.getText() + "?",
-                "Konfirmasi", JOptionPane.YES_NO_OPTION);
-            if (konfirmasi == JOptionPane.YES_OPTION) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Hapus NIM: " + nimTF.getText() + "?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
                 DatabaseHelper.hapusData(nimTF.getText());
-                JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
                 clearFields();
                 loadSemuaData();
             }
         });
 
-        // Aksi Tampil Semua
         tampilBtn.addActionListener(e -> loadSemuaData());
 
-        // Load data saat pertama buka
+        // Pengaturan Akhir Tampilan
         loadSemuaData();
-
+        pack(); // Menyesuaikan ukuran otomatis agar tidak ada tombol terpotong
+        setSize(900, 600); // Memberikan ruang lebih lega seperti pada gambar sddd.png
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
@@ -153,11 +154,8 @@ public class Main extends JFrame {
              ResultSet rs = st.executeQuery("SELECT * FROM datanilai")) {
             while (rs.next()) {
                 tableModel.addRow(new Object[]{
-                    rs.getString("nim"),
-                    rs.getString("nama"),
-                    rs.getString("nil1"),
-                    rs.getString("nil2"),
-                    rs.getString("rata")
+                    rs.getString("nim"), rs.getString("nama"),
+                    rs.getString("nil1"), rs.getString("nil2"), rs.getString("rata")
                 });
             }
         } catch (SQLException e) {
@@ -171,6 +169,7 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        new Main();
+        // Menjalankan aplikasi di Event Dispatch Thread (Saran UI Java)
+        SwingUtilities.invokeLater(() -> new Main());
     }
 }

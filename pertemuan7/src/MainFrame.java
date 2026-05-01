@@ -1,5 +1,6 @@
+package pertemuan7;
+
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.view.JasperViewer;
 
 import javax.swing.*;
@@ -8,7 +9,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.io.File;
-import java.io.InputStream;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,12 +28,10 @@ public class MainFrame extends JFrame {
         loadData();
     }
 
-    // ─── Inisialisasi database ────────────────────────────────────────────────
     private void initDatabase() {
         DatabaseHelper.initDatabase();
     }
 
-    // ─── Bangun tampilan UI ───────────────────────────────────────────────────
     private void initUI() {
         setTitle("Data Mahasiswa - Pertemuan 7");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -41,7 +39,6 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 0));
 
-        // ── Panel Header ──────────────────────────────────────────────────────
         JPanel panelHeader = new JPanel(new BorderLayout());
         panelHeader.setBackground(new Color(26, 58, 92));
         panelHeader.setPreferredSize(new Dimension(800, 60));
@@ -51,12 +48,11 @@ public class MainFrame extends JFrame {
         lblJudul.setForeground(Color.WHITE);
         panelHeader.add(lblJudul, BorderLayout.CENTER);
 
-        // ── Panel Tabel ───────────────────────────────────────────────────────
         String[] kolom = {"No", "NIM", "Nama", "Jurusan", "IPK"};
         tableModel = new DefaultTableModel(kolom, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // tabel tidak bisa diedit langsung
+                return false;
             }
         };
 
@@ -68,21 +64,18 @@ public class MainFrame extends JFrame {
         table.setGridColor(new Color(210, 210, 210));
         table.setShowGrid(true);
 
-        // Lebar kolom
-        table.getColumnModel().getColumn(0).setPreferredWidth(40);   // No
-        table.getColumnModel().getColumn(1).setPreferredWidth(100);  // NIM
-        table.getColumnModel().getColumn(2).setPreferredWidth(200);  // Nama
-        table.getColumnModel().getColumn(3).setPreferredWidth(200);  // Jurusan
-        table.getColumnModel().getColumn(4).setPreferredWidth(80);   // IPK
+        table.getColumnModel().getColumn(0).setPreferredWidth(40);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(200);
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);
 
-        // Center alignment untuk No, NIM, IPK
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
 
-        // Style header tabel
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("SansSerif", Font.BOLD, 13));
         header.setBackground(new Color(46, 117, 182));
@@ -92,7 +85,6 @@ public class MainFrame extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 15, 5, 15));
 
-        // ── Panel Footer (tombol + info) ──────────────────────────────────────
         JPanel panelFooter = new JPanel(new BorderLayout());
         panelFooter.setBackground(new Color(245, 245, 245));
         panelFooter.setBorder(BorderFactory.createCompoundBorder(
@@ -100,12 +92,10 @@ public class MainFrame extends JFrame {
                 BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
 
-        // Label total data
         lblTotal = new JLabel("Total: 0 mahasiswa");
         lblTotal.setFont(new Font("SansSerif", Font.PLAIN, 12));
         lblTotal.setForeground(new Color(80, 80, 80));
 
-        // Panel tombol kanan
         JPanel panelTombol = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         panelTombol.setBackground(new Color(245, 245, 245));
 
@@ -120,18 +110,15 @@ public class MainFrame extends JFrame {
         panelFooter.add(lblTotal, BorderLayout.WEST);
         panelFooter.add(panelTombol, BorderLayout.EAST);
 
-        // ── Susun layout utama ────────────────────────────────────────────────
         add(panelHeader, BorderLayout.NORTH);
         add(scrollPane,  BorderLayout.CENTER);
         add(panelFooter, BorderLayout.SOUTH);
 
-        // ── Event tombol ──────────────────────────────────────────────────────
         btnRefresh.addActionListener(e -> loadData());
         btnCetak.addActionListener(e -> cetakLaporan(false));
         btnExportPDF.addActionListener(e -> cetakLaporan(true));
     }
 
-    // ─── Helper buat tombol seragam ───────────────────────────────────────────
     private JButton buatTombol(String teks, Color warna) {
         JButton btn = new JButton(teks);
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -144,9 +131,8 @@ public class MainFrame extends JFrame {
         return btn;
     }
 
-    // ─── Load data dari SQLite ke JTable ─────────────────────────────────────
     private void loadData() {
-        tableModel.setRowCount(0); // kosongkan tabel dulu
+        tableModel.setRowCount(0);
 
         try (Connection conn = DatabaseHelper.getConnection();
              ResultSet rs = DatabaseHelper.getAllMahasiswa(conn)) {
@@ -161,7 +147,6 @@ public class MainFrame extends JFrame {
                         String.format("%.2f", rs.getDouble("ipk"))
                 });
             }
-
             lblTotal.setText("Total: " + (no - 1) + " mahasiswa");
 
         } catch (SQLException e) {
@@ -171,11 +156,9 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // ─── Cetak laporan / export PDF ───────────────────────────────────────────
     private void cetakLaporan(boolean exportPDF) {
         try {
-            // 1. Lokasi file .jrxml
-            String jrxmlPath = "src/laporan/LaporanMahasiswa.jrxml";
+            String jrxmlPath = "src/pertemuan7/laporan/LaporanMahasiswa.jrxml";
             File jrxmlFile = new File(jrxmlPath);
 
             if (!jrxmlFile.exists()) {
@@ -185,21 +168,13 @@ public class MainFrame extends JFrame {
                 return;
             }
 
-            // 2. Compile .jrxml → JasperReport
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlFile.getAbsolutePath());
-
-            // 3. Koneksi database untuk JasperReports
             Connection conn = DatabaseHelper.getConnection();
-
-            // 4. Parameter tambahan (opsional, bisa diisi data dinamis)
             Map<String, Object> params = new HashMap<>();
-
-            // 5. Fill data ke report
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, conn);
             conn.close();
 
             if (exportPDF) {
-                // ── Export ke PDF ─────────────────────────────────────────────
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Simpan PDF");
                 fileChooser.setSelectedFile(new File("LaporanMahasiswa.pdf"));
@@ -216,7 +191,6 @@ public class MainFrame extends JFrame {
                             "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 }
             } else {
-                // ── Tampilkan preview ─────────────────────────────────────────
                 JasperViewer viewer = new JasperViewer(jasperPrint, false);
                 viewer.setTitle("Preview Laporan Mahasiswa");
                 viewer.setVisible(true);
@@ -230,7 +204,6 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // ─── Entry point ──────────────────────────────────────────────────────────
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

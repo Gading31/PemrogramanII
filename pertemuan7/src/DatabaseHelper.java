@@ -1,3 +1,5 @@
+package pertemuan7;
+
 import java.sql.*;
 
 public class DatabaseHelper {
@@ -24,14 +26,14 @@ public class DatabaseHelper {
                 """;
 
         String[] dummyData = {
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021001', 'Andi Pratama',    'Teknik Informatika', 3.75)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021002', 'Budi Santoso',    'Sistem Informasi',   3.50)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021003', 'Citra Dewi',      'Teknik Informatika', 3.90)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021004', 'Dina Rahayu',     'Manajemen Informatika', 3.20)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021005', 'Eko Wahyudi',     'Sistem Informasi',   3.65)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021006', 'Fani Kurniawan',  'Teknik Informatika', 3.80)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021007', 'Gilang Saputra',  'Manajemen Informatika', 2.95)",
-            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021008', 'Hana Fitriani',   'Sistem Informasi',   3.40)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021001', 'Ucup Trondol',    'Teknik Informatika', 2.75)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021002', 'Asep Bobok',    'Sistem Informasi',   3.59)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021003', 'Leha Leho',      'Teknik Informatika', 1.90)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021004', 'Dudung Kecap',     'Manajemen Informatika', 2.20)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021005', 'Eko Es Bayem',     'Sistem Informasi',   3.65)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021006', 'Siti Nur Udin',  'Teknik Informatika', 3.80)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021007', 'Udin Bubut',  'Manajemen Informatika', 2.85)",
+            "INSERT OR IGNORE INTO mahasiswa (nim, nama, jurusan, ipk) VALUES ('2021008', 'Bakri Bubut',   'Sistem Informasi',   3.40)",
         };
 
         try (Connection conn = getConnection();

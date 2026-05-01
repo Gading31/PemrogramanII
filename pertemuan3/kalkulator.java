@@ -1,3 +1,5 @@
+package pertemuan3;
+
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -5,7 +7,7 @@ public class kalkulator {
 
     public static void main(String[] args) {
         // Membuat window
-        JFrame frame = new JFrame("Muhamad Fahrizal");
+        JFrame frame = new JFrame("Muhammad Gading Herlambang Sopian");
 
         // Membuat label
         JLabel label1 = new JLabel("Angka Pertama:");
